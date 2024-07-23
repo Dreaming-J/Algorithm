@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /*
-#백준 2444. 별 찍기 - 6
+#백준 2443. 별 찍기 - 6
 첫째 줄에 2xN-1개, 둘째 줄에 2xN-3개, ..., N번째 줄에 1개의 별을 가운데 대칭으로 찍는 문제
 
 #입력
