@@ -15,7 +15,9 @@
 #로직
 1행2열부터 1행N-1열까지의 값을 검사하며, 전치가 필요한지 결정한다.
 다음 값과 연속하지 않으면 전치가 필요한 것이다.
-1행N열은 N이 아니면 전치가 필요한 것이다.
+    헤당 값이 원래 1행의 값이었다면 다음 값과 1의 차이가 나야 하며,
+    해당 값이 원래 1열의 값이었다면 다음 값이 N의 차이가 나야 한다.
+단, 1행N열은 N이 아니면 전치가 필요한 것이다.
  */
 
 import java.io.BufferedReader;
@@ -45,7 +47,7 @@ class Solution {
             }
 
             //로직
-            //2열부터 N-1열까지 전치가 필요한지 검사
+            //2열부터 N열까지 전치가 필요한지 검사
             for (int col = 1; col < matrixSize - 1; col++) {
                 int gap = firstRow[col + 1] - firstRow[col];
                 if (!(gap == 1 || gap == matrixSize))
