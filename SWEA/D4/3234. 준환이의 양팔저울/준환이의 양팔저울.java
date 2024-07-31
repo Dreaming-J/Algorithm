@@ -59,7 +59,7 @@ class Solution {
             }
 
             //출력
-            output.write("#" + test_case + " " + answer + "\n");
+            output.write(String.format("#%d %d\n", test_case, answer));
         }
 
         output.flush();
