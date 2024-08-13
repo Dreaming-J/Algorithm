@@ -60,8 +60,7 @@ class Solution {
                         curPoint[1] += delta;
                     }
 
-                    if (isGo)
-                        break;
+                    if (isGo) break;
                 }
 
                 curPoint[0]--;
