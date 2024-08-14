@@ -67,8 +67,7 @@ public class Solution {
     		initTestCase();
 
 			//3. 재료의 부분집합을 구한다.
-    		for (int count = 1; count <= ingredientCount; count++)
-    			powerSet(0, 0, 0);
+            powerSet(0, 0, 0);
     		
     		output.append("#").append(tc).append(" ").append(maxScore).append("\n");
     	}
