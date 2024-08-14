@@ -1,77 +1,77 @@
-import java.util.*;
+/*
+=SWEA 5215. 햄버거 다이어트
 
-import java.io.*;
+0. 테스트 케이스를 입력받는다.
+1. 입력
+	1-1. 재료의 수, 제한 칼로리를 입력받는다.
+	1-2. N개의 줄에 걸쳐 재료의 점수와 칼로리를 입력받는다.
+2. 초기화
+3. 재료의 부분집합을 구한다.
+	3-1. 제한 칼로리를 넘어가는 조합은 구하지 않는다.
+	3-2. 모든 재료를 탐색했다면 종료한다.
+		3-2-1. 최고 점수라면 갱신한다.
+*/
 
-/**
- * 
- * @author SSAFY
- * 1. testcase와 민기의 재료의 수, 제한 칼로리를 입력 받는다.
- * 2. 재료와 칼로리에 대한 정보를 입력받고 배열에 저장한다. int[][]
- * 3. 선택하거나 말거나 전략을 사용(부분집합)하여 최대 칼로리를 구한다.
- * 3-1. answer을 0으로 초기화하고, 생성되는 부분집합마다 answer의 값을 최댓값으로 갱신한다.
- * 3-2. 칼로리와 맛에 대한 점수를 가지고 간다.
- */
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+import java.io.IOException;
 
 public class Solution {
+	static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+	static StringBuilder output = new StringBuilder();
+	static StringTokenizer st;
+	static int ingredientCount, limitKcal, maxScore;
+	static int[][] ingredient; //점수, 칼로리 보관
 	
-	static int ingredientCount;
-	static int maxCalorie;
-	static int[][] ingredients;
-	static int answer;
-	static int depth;
-	static StringBuilder sb;
+	public static void initTestCase() throws IOException {
+		//1. 입력
+		//1-1. 재료의 수, 제한 칼로리를 입력받는다.
+		st = new StringTokenizer(input.readLine().trim());
+		ingredientCount = Integer.parseInt(st.nextToken());
+		limitKcal = Integer.parseInt(st.nextToken());
+		
+		//1-2. N개의 줄에 걸쳐 재료의 점수와 칼로리를 입력받는다.
+		ingredient = new int[ingredientCount][2];
+		for (int idx = 0; idx < ingredientCount; idx++) {
+			st = new StringTokenizer(input.readLine().trim());
+			ingredient[idx][0] = Integer.parseInt(st.nextToken());
+			ingredient[idx][1] = Integer.parseInt(st.nextToken());
+		}
+
+		//2. 초기화
+		maxScore = Integer.MIN_VALUE;
+	}
 	
-	static void Combination(int ingredientIndex, int stackDepth, int sumCalorie, int sumTaste) {
-		// 종료 조건
-		// depth 만큼 선택했다면 종료
-		if (sumCalorie > maxCalorie) {
+	public static void powerSet(int elementIdx, int kcal, int score) {
+		//3-1. 제한 칼로리를 넘어가는 조합은 구하지 않는다.
+		if (kcal > limitKcal)
+			return;
+		
+		//3-2. 모든 재료를 탐색했다면 종료한다.
+		if (elementIdx == ingredientCount) {
+			//3-2-1. 최고 점수라면 갱신한다.
+			maxScore = Math.max(score , maxScore);
 			return;
 		}
-		answer = Math.max(answer, sumTaste);
-		if (stackDepth == depth) return;
-		if (ingredientIndex == ingredientCount) {
-			return;
-		}
 		
-		int ingredientTaste = ingredients[ingredientIndex][0];
-		int ingredientCalorie = ingredients[ingredientIndex][1];
-		
-		// 선택하기
-		Combination(ingredientIndex+1, stackDepth+1, sumCalorie + ingredientCalorie, sumTaste+ingredientTaste);
-		// 선택 안하기
-		Combination(ingredientIndex+1, stackDepth+1, sumCalorie, sumTaste);
+		powerSet(elementIdx + 1, kcal + ingredient[elementIdx][1], score + ingredient[elementIdx][0]);
+		powerSet(elementIdx + 1, kcal, score);
 	}
+	
+    public static void main(String[] args) throws IOException {
+    	//0. 테스트 케이스를 입력받는다.
+    	int testCase = Integer.parseInt(input.readLine());
+    	
+    	for (int tc = 1; tc <= testCase; tc++) {
+    		initTestCase();
 
-	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		sb = new StringBuilder();
-		
-		// 1. testcase와 민기의 재료의 수, 제한 칼로리를 입력 받는다.
-		int testCase = Integer.parseInt(br.readLine());
-		for (int test_case=1; test_case<=testCase; test_case++) {
-			StringTokenizer st = new StringTokenizer(br.readLine().trim());
-			ingredientCount = Integer.parseInt(st.nextToken());
-			maxCalorie = Integer.parseInt(st.nextToken());
-			
-			// 2. 재료와 칼로리에 대한 정보를 입력받고 배열에 저장한다. int[][]
-			ingredients = new int[ingredientCount][];
-			for (int count=0; count<ingredientCount; count++) {
-				st = new StringTokenizer(br.readLine().trim());
-				ingredients[count] = new int[2];
-				ingredients[count][0] = Integer.parseInt(st.nextToken());
-				ingredients[count][1] = Integer.parseInt(st.nextToken());
-			}
-			answer = 0;
-			// 조합으로 풀기!
-			for (int selectCount=1; selectCount<=ingredientCount; selectCount++) {
-				depth = selectCount;
-				Combination(0, 0, 0, 0);
-			}
-			
-			sb.append("#").append(test_case).append(" ").append(answer).append("\n");
-		}
-		System.out.println(sb);
-	}
-
+			//3. 재료의 부분집합을 구한다.
+    		for (int count = 1; count <= ingredientCount; count++)
+    			powerSet(0, 0, 0);
+    		
+    		output.append("#").append(tc).append(" ").append(maxScore).append("\n");
+    	}
+    	System.out.println(output);
+    }
 }
