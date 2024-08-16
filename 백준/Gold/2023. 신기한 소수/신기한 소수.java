@@ -14,6 +14,8 @@ public class Main {
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     static StringBuilder output = new StringBuilder();
     static int digits;
+    static final int[] NthDigit = {2, 3, 5, 7};
+    static final int[] canDigits = {1, 3, 7, 9};
 
     public static boolean isPrime(int number) {
         for (int num = 2; num <= Math.sqrt(number); num++) {
@@ -24,16 +26,16 @@ public class Main {
         return true;
     }
 
-    public static void findAmazingPrime(int depth, int number) {
+    public static void findAmazingPrime(int depth, int number, int[] canDigits) {
         if (depth == digits) {
             output.append(number).append("\n");
         }
 
-        for (int firstDigit = 0; firstDigit <= 9; firstDigit++) {
+        for (int firstDigit : canDigits) {
             int newNumber = number * 10 + firstDigit;
             //3. 해당 숫자가 소수인지 판단하여, 소수만 중복 순열을 순회하도록 한다.
             if (isPrime(newNumber))
-                findAmazingPrime(depth + 1, newNumber);
+                findAmazingPrime(depth + 1, newNumber, canDigits);
         }
     }
 
@@ -42,8 +44,8 @@ public class Main {
         digits = Integer.parseInt(input.readLine());
 
         //2. {2, 3, 5, 7}로 시작하는 신기한 소수를 중복 순열을 이용해 찾는다.
-        for (int num : new int[]{2, 3, 5, 7}) {
-            findAmazingPrime(1, num);
+        for (int num : NthDigit) {
+            findAmazingPrime(1, num, canDigits);
         }
 
         System.out.println(output.toString());
