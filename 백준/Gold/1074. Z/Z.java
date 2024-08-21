@@ -49,14 +49,12 @@ public class Main {
 			//현재 격자 중심 기준으로 제 2 사분면에 위치할 경우
 			if (targetRow < row + half) {
 				dq(row, col, half);
-				return;
 			}
 			
 			//현재 격자 중심 기준으로 제 3 사분면에 위치할 경우
 			else {
 				visitCount += half * half * 2;
 				dq(row + half, col, half);
-				return;
 			}
 		}
 		else {
@@ -64,14 +62,12 @@ public class Main {
 			if (targetRow < row + half) {
 				visitCount += half * half;
 				dq(row, col + half, half);
-				return;
 			}
 			
 			//현재 격자 중심 기준으로 제 4 사분면에 위치할 경우
 			else {
 				visitCount += half * half * 3;
 				dq(row + half, col + half, half);
-				return;
 			}
 		}
 	}
