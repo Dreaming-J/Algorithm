@@ -9,7 +9,7 @@ public class Main {
     static StringJoiner output = new StringJoiner(" ");
     static StringTokenizer st;
     static int[] array = new int[1_000_001];
-    static int[] rangeSum = new int[4_000_005];
+    static int[] rangeSum = new int[4_000_000];
     static int n, m;
 
     public static int init(int left, int right, int node) {
