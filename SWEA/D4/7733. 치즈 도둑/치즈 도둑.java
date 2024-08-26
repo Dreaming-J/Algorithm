@@ -124,7 +124,7 @@ public class Solution {
 					break;
 			}
 			
-			//4. 출력
+			//3. 출력
 			output.append("#").append(tc).append(" ").append(maxBunch).append("\n");
 		}
 		System.out.println(output);
