@@ -90,7 +90,11 @@ public class Solution {
 			
 			//2. 0일부터 100일까지 치즈 덩어리 계산
 			for (int time = 0; time <= MAX_TIME; time++) {
-				visited = new boolean[cheeseSize][cheeseSize];
+				for (int row = 0; row < cheeseSize; row++) {
+					for (int col = 0; col < cheeseSize; col++) {
+						visited[row][col] = false;
+					}
+				}
 				
 				//2-1. 해당 좌표에 치즈 덩어리가 있는지 판단
 				int bunch = 0;
@@ -139,5 +143,6 @@ public class Solution {
 		
 		//1-3. 변수 초기화
 		maxBunch = 0;
+		visited = new boolean[cheeseSize][cheeseSize];
 	}
 }
