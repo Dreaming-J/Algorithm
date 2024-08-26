@@ -7,9 +7,11 @@
 	1-2. 맵의 크기만큼 맵 정보 입력
 	1-3. 변수 초기화
 2. 0인 공간 찾기
-	2-1. 해당 좌표 방문했는지 판단
-	2-2. 해당 좌표의 값이 0이 아니라면 탐색 종료
-	2-3. 팔방으로 이동
+	2-1. 해당 좌표 주변의 지뢰 개수가 0이 아니라면 이동하지 않음
+	2-2. 팔방으로 이동
+		2-2-1. 범위를 벗어났다면 패스
+		2-2-2. 해당 좌표 방문했다면 패스
+		2-2-3. 해당 좌표가 지뢰라면 패스
 3. 방문한 적 없는 빈칸 갯수  구하기
 4. 출력
  */
@@ -46,32 +48,35 @@ public class Solution {
 	public static void findZeroPlace(int row, int col) {
 		Deque<Position> queue = new ArrayDeque<>();
 		queue.add(new Position(row, col));
+		visitMap[row][col] = true;
 		
 		while (!queue.isEmpty()) {
 			Position cur = queue.poll();
 			
-			//2-1. 해당 좌표 방문했는지 판단
-			if (visitMap[cur.row][cur.col]) {
-				continue;
-			}
-			visitMap[cur.row][cur.col] = true;
-			
-			//2-2. 해당 좌표의 값이 0이 아니라면 탐색 종료
+			//2-1. 해당 좌표 주변의 지뢰 개수가 0이 아니라면 이동하지 않음
 			if (countMine(cur.row, cur.col) != 0) {
 				continue;
 			}
 			
-			//2-3. 팔방으로 이동
+			//2-2. 팔방으로 이동
 			for (int[] delta : deltas) {
 				int nr = cur.row + delta[0];
 				int nc = cur.col + delta[1];
 				
+				//2-2-1. 범위를 벗어났다면 패스
 				if (!canGo(nr, nc))
 					continue;
 				
+				//2-2-2. 해당 좌표 방문했다면 패스
+				if (visitMap[nr][nc]) {
+					continue;
+				}
+				
+				//2-2-3. 해당 좌표가 지뢰라면 패스
 				if (map[nr][nc] == MINE)
 					continue;
 				
+				visitMap[nr][nc] = true;
 				queue.add(new Position(nr, nc));
 			}
 		}
