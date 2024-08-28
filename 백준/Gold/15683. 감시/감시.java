@@ -1,174 +1,182 @@
+/*
+= BOJ 15683. 감시
+
+= 특이사항
+CCTV는 CCTV를 통과할 수 있고, 벽은 통과하지 못한다.
+
+= 로직
+1. 초기 세팅
+	1-1. 변수 초기화
+	1-2. 사무실의 행과 열 크기 입력
+	1-3. 사무실의 행 크기만큼 사무실의 정보 입력
+		1-3-1. 빈 칸의 개수 보관
+		1-3-2. CCTV 좌표 보관
+2. CCTV의 방향을 순열로 결정
+	2-1. 모든 CCTV의 방향을 선택했다면 사각 지대 탐색
+	2-2. 다음 CCTV 방향 선택
+3. CCTV 방향에 맞춰 사각 지대 탐색
+4. 출력
+ */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.StringTokenizer;
 
-/*
-#백준 15683번 감시
-NxM 크기의 사무실에 K개의 CCTV가 설치되어 있고, CCTV는 5가지 종류가 있다.
-	1번. 한 방향
-	2번. 평행하는 두 방향
-	3번. 수직인 두 방향
-	4번. 세 방향
-	5번. 네 방향
-CCTV는 감시할 수 있는 방향에 있는 모든 칸을 벽(6)을 만날 때까지 감시할 수 있다.
-CCTV는 CCTV를 통과해 감시할 수 있다.
-CCTV가 감시할 수 없는 사각지대의 최고 크기를 구해라.
-
-#입력
-첫째 줄: N, M
-	N = 사무실의 세로 크기
-	M = 사무실의 가로 크기
-	(1 <= N, M <= 8)
-둘째 줄부터 N개의 줄: 사무실 각 칸의 정보
-	0 = 빈칸
-	1~5 = CCTV
-	6 = 벽
-	-> CCTV의 최대 개수는 8개를 넘지 않음
-#출력
-사각 지대의 최소 크기
-
-#CCTV의 설치 방법
-1, 3, 4번은 4개
-2번은 2개
-5번은 1개
-
-#로직
-0. 사무실 초기화, CCTV 위치 파악
-1. 각각의  CCTV의 방향을 임의로 결정
-2. CCTV의 방향에 맞춰 벽을 만날때까지 영역(#) 표시
-3. 임의의 방향으로 모든 CCTV를 설치했다면 사각지대 계산
- */
-
 public class Main {
-    static final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static StringTokenizer st;
-    static final int[][] deltas = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
-    static int officeRow, officeCol;
-    static int[][] office;
-    static List<CCTV> cctv = new ArrayList<>();
-    static int minBlindSpot = Integer.MAX_VALUE;
+	static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+	static StringBuilder output = new StringBuilder();
+	static StringTokenizer st;
+	static final int[][] deltas = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}}; //상우하좌 배열
+	static final int MAX_CCTV_SIZE = 8, DELTA_SIZE = 4, ROTATE_SIZE = 4;
+	static final int EMPTY = 0, WALL = 6;
+	static int rowSize, colSize;
+	static int[][] office;
+	static Position[] cctvs;
+	static int[] cctvDeltas;
+	static int cctvSize; 
+	static int blindSpotCount;
+	static int version;
+	static int minBlindSpot;
+	
+	public static class Position {
+		int row;
+		int col;
+		CCTV cctv;
+		
+		public Position(int row, int col, CCTV cctv) {
+			this.row = row;
+			this.col = col;
+			this.cctv = cctv;
+		}
+	}
+	
+	public static enum CCTV {
+		FIRST(1, 0b0010, 4),
+		SECOND(2, 0b1010, 2),
+		THIRD(3, 0b0011, 4),
+		FOURTH(4, 0b1011, 4),
+		FIFTH(5, 0b1111, 1);
+		
+		final int number;
+		final int deltaIdx;
+		final int rotateSize;
+		
+		CCTV(int number, int deltaIdx, int rotateSize) {
+			this.number = number;
+			this.deltaIdx = deltaIdx;
+			this.rotateSize = rotateSize;
+		}
+		
+		public int getDeltaIdxWithRotate(int rotateIdx) {
+			int temp = deltaIdx;
+			
+			for (int idx = 0; idx < rotateIdx; idx++) {
+				temp = (temp >> 1) | ((temp & 1) << (ROTATE_SIZE - 1));
+			}
+			
+			return temp;
+		}
 
-    public static class CCTV {
-        int row;
-        int col;
-        int[][] directions;
+		public static CCTV of(int number) {
+			for (CCTV cctv : values()) {
+				if (cctv.number == number)
+					return cctv;
+			}
+			
+			return null;
+		}
+	}
+	
+	public static void selectCCTVDirection(int cctvIdx) {
+		//2-1. 모든 CCTV의 방향을 선택했다면 사각 지대 탐색
+		if (cctvIdx == cctvSize) {
+			//3. CCTV 방향에 맞춰 사각 지대 탐색
+			version--;
+			minBlindSpot = Math.min(findBlindSpot(), minBlindSpot);
+			
+			return;
+		}
 
-        public CCTV(int row, int col, int type) {
-            this.row = row;
-            this.col = col;
-            setDirections(type);
-        }
-
-        private void setDirections(int type) {
-            switch (type) {
-                case 1:
-                    directions = new int[][]{
-                            {0, 1, 0, 0},
-                            {0, 0, 1, 0},
-                            {0, 0, 0, 1},
-                            {1, 0, 0, 0}};
-                    break;
-                case 2:
-                    directions = new int[][]{
-                            {0, 1, 0, 1},
-                            {1, 0, 1, 0}};
-                    break;
-                case 3:
-                    directions = new int[][]{
-                            {1, 1, 0, 0},
-                            {0, 1, 1, 0},
-                            {0, 0, 1, 1},
-                            {1, 0, 0, 1}};
-                    break;
-                case 4:
-                    directions = new int[][]{
-                            {1, 1, 0, 1},
-                            {1, 1, 1, 0},
-                            {0, 1, 1, 1},
-                            {1, 0, 1, 1}};
-                    break;
-                case 5:
-                    directions = new int[][]{{1, 1, 1, 1}};
-                    break;
-            }
-        }
-    }
-
-    //2. CCTV의 방향에 맞춰 벽을 만날때까지 영역(#) 표시
-    public static int[][] monitor(CCTV cctv, int[] direction, int[][] office) {
-        int[][] newOffice = new int[officeRow][officeCol];
-        for (int row = 0; row < officeRow; row++) {
-            newOffice[row] = Arrays.copyOf(office[row], officeCol);
-        }
-
-        for (int dirIdx = 0; dirIdx < direction.length; dirIdx++) {
-            if (direction[dirIdx] == 0)
-                continue;
-            int nr = cctv.row + deltas[dirIdx][0];
-            int nc = cctv.col + deltas[dirIdx][1];
-            while (canMove(nr, nc, newOffice)) {
-                if (newOffice[nr][nc] == 0)
-                    newOffice[nr][nc] = -1;
-                nr += deltas[dirIdx][0];
-                nc += deltas[dirIdx][1];
-            }
-        }
-        
-        return newOffice;
-    }
-
-    public static boolean canMove(int row, int col, int[][] office) {
-        return row >= 0 && row < officeRow && col >= 0 && col < officeCol && office[row][col] != 6;
-    }
-
-    public static int calBlindSpot(int[][] office) {
-        return Arrays.stream(office)
-                .map(row -> (int) Arrays.stream(row)
-                        .filter(cell -> cell == 0)
-                        .count())
-                .mapToInt(i -> i)
-                .sum();
-    }
-    
-    public static void dfs(int depth, int[] curdirection, int[][] curOffice) {
-        //3. 임의의 방향으로 모든 CCTV를 설치했다면 사각지대 계산
-    	if (depth == cctv.size()) {
-    		minBlindSpot = Math.min(minBlindSpot, calBlindSpot(curOffice));
-    		return;
-    	}
-
-        //1. 각각의  CCTV의 방향을 임의로 결정
-    	CCTV curCCTV = cctv.get(depth);
-    	for (int[] direction : curCCTV.directions) {
-    		dfs(depth + 1, direction, monitor(curCCTV, direction, curOffice));
-    	}
-    }
-
-    public static void main(String[] args) throws IOException {
-        //입력
-        st = new StringTokenizer(br.readLine().trim());
-        officeRow = Integer.parseInt(st.nextToken());
-        officeCol = Integer.parseInt(st.nextToken());
-
-        //0. 사무실 초기화, CCTV 위치 파악
-        office = new int[officeRow][officeCol];
-        for (int row = 0; row < officeRow; row++) {
-            st = new StringTokenizer(br.readLine().trim());
-            for (int col = 0; col < officeCol; col++) {
-                int cell = Integer.parseInt(st.nextToken());
-                if (cell != 0 && cell != 6)
-                    cctv.add(new CCTV(row, col, cell));
-                office[row][col] = cell;
-            }
-        }
-
-        //로직
-        dfs(0, new int[] {0, 0, 0, 0}, office);
-        
-        System.out.println(minBlindSpot);
-    }
+		//2-2. 다음 CCTV 방향 선택
+		CCTV cctv = cctvs[cctvIdx].cctv;
+		for (int rotateIdx = 0; rotateIdx < cctv.rotateSize; rotateIdx++) {
+			cctvDeltas[cctvIdx] = cctv.getDeltaIdxWithRotate(rotateIdx);
+			selectCCTVDirection(cctvIdx + 1);
+		}
+	}
+	
+	//3. CCTV 방향에 맞춰 사각 지대 탐색
+	public static int findBlindSpot() {
+		int blindSpot = blindSpotCount;
+		
+		for (int cctvIdx = 0; cctvIdx < cctvSize; cctvIdx++) {
+			Position cctv = cctvs[cctvIdx];
+			for (int deltaIdx = 0; deltaIdx < DELTA_SIZE; deltaIdx++) {
+				if ((cctvDeltas[cctvIdx] & 1 << deltaIdx) == 0)
+					continue;
+				
+				int nr = cctv.row + deltas[deltaIdx][0];
+				int nc = cctv.col + deltas[deltaIdx][1];
+				while (canGo(nr, nc)) {
+					if (office[nr][nc] <= EMPTY && office[nr][nc] != version) {
+						office[nr][nc] = version;
+						blindSpot--;
+					}
+					
+					nr += deltas[deltaIdx][0];
+					nc += deltas[deltaIdx][1];
+				}
+			}
+		}
+		
+		return blindSpot;
+	}
+	
+	public static boolean canGo(int row, int col) {
+		return row >= 0 && row < rowSize && col >= 0 && col < colSize && office[row][col] != WALL;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		//1. 초기 세팅
+		initTestCase();
+		
+		//2. CCTV의 방향을 순열로 결정
+		selectCCTVDirection(0);
+		
+		//4. 출력
+		System.out.println(minBlindSpot);
+	}
+	
+	public static void initTestCase() throws IOException {
+		//1-1. 변수 초기화
+		cctvs = new Position[MAX_CCTV_SIZE];
+		cctvDeltas = new int[MAX_CCTV_SIZE];
+		cctvSize = 0;
+		blindSpotCount = 0;
+		version = 0;
+		minBlindSpot = Integer.MAX_VALUE;
+		
+		//1-2. 사람의 수와 친구 관계의 수 입력
+		st = new StringTokenizer(input.readLine());
+		rowSize = Integer.parseInt(st.nextToken());
+		colSize = Integer.parseInt(st.nextToken());
+		
+		//1-3. 친구 관계의 수만큼 친구 관계 정보 입력
+		office = new int[rowSize][colSize];
+		for (int row = 0; row < rowSize; row++) {
+			st = new StringTokenizer(input.readLine());
+			for (int col = 0; col < colSize; col++) {
+				office[row][col] = Integer.parseInt(st.nextToken());
+				
+				//1-3-1. 빈 칸의 개수 보관
+				if (office[row][col] == EMPTY)
+					blindSpotCount++;
+				
+				//1-3-2. CCTV 좌표 보관
+				if (office[row][col] != EMPTY && office[row][col] != WALL)
+					cctvs[cctvSize++] = new Position(row, col, CCTV.of(office[row][col]));
+			}
+		}
+	}
 }
