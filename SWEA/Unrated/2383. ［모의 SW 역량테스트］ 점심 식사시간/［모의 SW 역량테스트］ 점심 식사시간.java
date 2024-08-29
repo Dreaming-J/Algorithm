@@ -22,7 +22,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
@@ -59,15 +58,21 @@ public class Solution {
         }
     }
 
-    public static class Person {
+    public static class Person implements Comparable<Person> {
         int number;
         int time;
         int selectStair;
+        int version;
 
         public Person(int number, int time, int selectStair) {
             this.number = number;
             this.time = time;
             this.selectStair = selectStair;
+        }
+
+        @Override
+        public int compareTo(Person o) {
+            return this.version == o.version ? this.time - o.time : this.version - o.version;
         }
     }
 
@@ -97,8 +102,7 @@ public class Solution {
     public static int play() {
         int time = 0;
         int[] stairCount = new int[STAIR_SIZE];
-        PriorityQueue<Person> queue = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.time, o2.time));
-        PriorityQueue<Person> temp = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.time, o2.time));
+        PriorityQueue<Person> queue = new PriorityQueue<>();
 
         for (int personIdx = 0; personIdx < peopleSize; personIdx++) {
             queue.add(new Person(personIdx, distance[personIdx][selectStair[personIdx]], selectStair[personIdx]));
@@ -106,7 +110,7 @@ public class Solution {
 
         while (!queue.isEmpty()) {
             int size = queue.size();
-            
+
             while (size-- > 0) {
                 Person cur = queue.poll();
 
@@ -129,12 +133,9 @@ public class Solution {
                 if (cur.time == -(stairs[cur.selectStair].time + 1)) {
                     stairCount[cur.selectStair]--;
                 } else {
-                    temp.add(cur);
+                    cur.version++;
+                    queue.add(cur);
                 }
-            }
-
-            while (!temp.isEmpty()) {
-                queue.add(temp.poll());
             }
 
             time++;
