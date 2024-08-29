@@ -39,6 +39,7 @@ public class Solution {
     static int peopleSize, stairSize;
     static int[][] distance;
     static int[] selectStair;
+    static PriorityQueue<Person> queue;
     static int minTime;
 
     public static class Point {
@@ -102,7 +103,6 @@ public class Solution {
     public static int play() {
         int time = 0;
         int[] stairCount = new int[STAIR_SIZE];
-        PriorityQueue<Person> queue = new PriorityQueue<>();
 
         for (int personIdx = 0; personIdx < peopleSize; personIdx++) {
             queue.add(new Person(personIdx, distance[personIdx][selectStair[personIdx]], selectStair[personIdx]));
@@ -192,6 +192,7 @@ public class Solution {
         //1-3. 변수 초기화
         distance = new int[peopleSize][stairSize];
         selectStair = new int[peopleSize];
+        queue = new PriorityQueue<>();
         minTime = Integer.MAX_VALUE;
     }
 }
