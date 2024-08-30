@@ -92,6 +92,9 @@ public class Solution {
     			break;
     		
     		for (Node next = vertices[cur.to]; next != null; next = next.next) {
+    			if (visited[next.to])
+    				continue;
+    			
     			queue.add(next);
     		}
     	}
