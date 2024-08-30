@@ -2,7 +2,7 @@
 =SWEA 1251. [S/W 문제해결 응용] 4일차 - 하나로
 
 =특이사항
-조합, 크루스칼
+조합, 프림
 
 =로직
 0. 테스트 케이스 개수 입력
@@ -13,11 +13,7 @@
 		1-2-1. 섬들의 y좌표 입력
 	1-4. 세율 실수 입력
 	1-5. 변수 초기화
-2. 섬간에 지을 수 있는 모든 간선 생성
-	2-1. 두 개의 섬을 선택했다면 간선 생성 후 탐색 종료
-	2-2. 모든 섬을 탐색했다면 탐색 종료
-	2-3. 현재 섬 선택 후 다음
-	2-4. 현재 섬 미선택 후 다음
+2. 섬간의 지을 수 있는 모든 해저터널 건설 
 3. 모든 섬을 연결하기 위한 해저터널을 최소비용으로 건설 
 4. 출력
  */
@@ -25,7 +21,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
@@ -36,12 +31,11 @@ public class Solution {
     static int testCase;
     static int islandSize;
     static double tariff;
-    static Island[] islands;				//각 섬의 좌표를 관리하는 배열
-    static PriorityQueue<Edge> edges;	//각 섬 사이의 간선을 관리하는 배열
-    static int[] chooseIsland;			//각 섬 사이의 간선을 만들 때 선택된 섬을 보관하는 배열
-    static int[] parents;				//서로소 집합용 배열
-    static int[] rank;					//서로소 집합의 랭크를 관리하는 배열
-    
+    static Island[] islands;			//각 섬의 좌표를 관리하는 배열
+    static Node[] vertices;				//각 섬 사이의 간선을 관리하는 배열
+    static boolean[] visited;
+    static long minCost;
+  
     public static class Island {
     	int x;
     	int y;
@@ -55,51 +49,58 @@ public class Solution {
     	}
     }
     
-    public static class Edge {
-    	int start, end;
-    	double weight;
+    public static class Node {
+    	int to;
+    	double cost;
+    	Node next;
 
-		public Edge(int start, int end) {
-			this.start = start;
-			this.end = end;
-			this.weight = tariff * Island.distance(islands[start], islands[end]);
+		public Node(int to, long distance, Node next) {
+			this.to = to;
+			this.cost = tariff * distance;
+			this.next = next;
 		}
     }
     
-    public static void chooseTwoIsland(int islandIdx, int countIdx) {
-    	//2-1. 두 개의 섬을 선택했다면 간선 생성 후 탐색 종료
-    	if (countIdx == 2) {
-    		edges.add(new Edge(chooseIsland[0], chooseIsland[1]));
-    		return;
+    public static void findAllTunnel() {
+    	for (int node1 = 0; node1 < islandSize; node1++) {
+    		for (int node2 = node1 + 1; node2 < islandSize; node2++) {
+    			long distance = Island.distance(islands[node1], islands[node2]);
+    			
+    			vertices[node1] = new Node(node2, distance, vertices[node1]);
+    			vertices[node2] = new Node(node1, distance, vertices[node2]);
+    		}
     	}
-    	
-    	//2-2. 모든 섬을 탐색했다면 탐색 종료
-    	if (islandIdx == islandSize)
-    		return;
-    	
-    	//2-3. 현재 섬 선택 후 다음
-    	chooseIsland[countIdx] = islandIdx;
-    	chooseTwoIsland(islandIdx + 1, countIdx + 1);
-    	//2-4. 현재 섬 미선택 후 다음
-    	chooseTwoIsland(islandIdx + 1, countIdx);
     }
     
-    public static long makeTunnel() {
-    	int count = 0;
+    public static void selectTunnel() {
+    	int cnt = 0;
     	double cost = 0;
     	
-    	while (!edges.isEmpty()) {
-    		Edge cur = edges.poll();
+    	PriorityQueue<Node> queue = new PriorityQueue<>((o1, o2) -> Double.compare(o1.cost, o2.cost));
+    	queue.add(new Node(0, 0, null));
+    	
+    	while (true) {
+    		Node cur = queue.poll();
     		
-    		if (union(cur.start, cur.end)) {
-    			cost += cur.weight;
-    			if (++count == islandSize - 1)
-    				break;
+    		if (visited[cur.to])
+    			continue;
+    		visited[cur.to] = true;
+    		
+    		cost += cur.cost;
+    		
+    		if (++cnt == islandSize)
+    			break;
+    		
+    		for (Node next = vertices[cur.to]; next != null; next = next.next) {
+    			queue.add(next);
     		}
     	}
     	
-    	return Math.round(cost);
+    	minCost = Math.min(Math.round(cost), minCost);
     }
+    
+    
+    
     public static void main(String[] args) throws IOException {
     	//0. 테스트 케이스 개수 입력
     	testCase = Integer.parseInt(input.readLine().trim());
@@ -108,42 +109,16 @@ public class Solution {
         	//1. 초기 세팅
             initTestCase();
             
-            //2. 섬간에 지을 수 있는 모든 간선 생성
-            chooseTwoIsland(0, 0);
+            //2. 섬간의 지을 수 있는 모든 해저터널 건설 
+            findAllTunnel();
             
             //3. 모든 섬을 연결하기 위한 해저터널을 최소비용으로 건설
-            long minCost = makeTunnel();
+            selectTunnel();
             
             //4. 출력
             output.append("#").append(tc).append(" ").append(minCost).append("\n");
         }
         System.out.println(output);
-    }
-    
-    public static boolean union(int element1, int element2) {
-    	int parent1 = find(element1);
-    	int parent2 = find(element2);
-    	
-    	if (parent1 == parent2)
-    		return false;
-    	
-    	if (rank[parent1] > rank[parent2]) {
-    		parents[parent2] = parent1;
-    		return true;
-    	}
-    	
-    	if (rank[parent1] == rank[parent2])
-    		rank[parent2]++;
-    	
-    	parents[parent1] = parent2;
-    	return true;
-    }
-    
-    public static int find(int element) {
-    	if (parents[element] == element)
-    		return element;
-    	
-    	return parents[element] = find(parents[element]);
     }
 
     public static void initTestCase() throws IOException {
@@ -165,10 +140,8 @@ public class Solution {
     	tariff = Double.parseDouble(input.readLine().trim());
     	
     	//1-5. 변수 초기화
-    	edges = new PriorityQueue<>((o1, o2) -> Double.compare(o1.weight, o2.weight));
-    	chooseIsland = new int[2];
-    	parents = new int[islandSize];
-    	Arrays.setAll(parents, idx -> idx);
-    	rank = new int[islandSize];
+    	vertices = new Node[islandSize];
+    	visited = new boolean[islandSize];
+    	minCost = Long.MAX_VALUE;
     }
 }
