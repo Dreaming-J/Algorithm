@@ -34,7 +34,12 @@ public class Main {
             if (++cnt == buildingSize + 1)
                 return;
 
-            queue.addAll(buildings[cur.num]);
+            for (Building next : buildings[cur.num]) {
+                if (visited[state][next.num])
+                    continue;
+
+                queue.add(next);
+            }
         }
     }
 
