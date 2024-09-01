@@ -37,7 +37,7 @@ public class Main {
             if (union(cur.start, cur.end)) {
                 minCost += cur.cost;
 
-                if (++cnt == paddySize + 1)
+                if (++cnt == paddySize)
                     return;
             }
         }
