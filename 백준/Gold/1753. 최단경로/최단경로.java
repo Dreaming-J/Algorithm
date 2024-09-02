@@ -40,22 +40,19 @@ public class Main {
         pq.add(new Node(nodeIdx, 0));
 
         while (!pq.isEmpty()) {
-            Node node = pq.poll();
+            Node cur = pq.poll();
 
-            if (visit[node.num])
+            if (visit[cur.num])
                 continue;
-            visit[node.num] = true;
+            visit[cur.num] = true;
 
-            Node cur = graph[node.num];
-            while (cur != null) {
-                int distance = MST[node.num] + cur.weight;
+            for (Node next = graph[cur.num]; next != null; next = next.next) {
+                int distance = MST[cur.num] + next.weight;
 
-                if (distance < MST[cur.num]) {
-                    MST[cur.num] = distance;
-                    pq.add(new Node(cur.num, distance));
+                if (distance < MST[next.num]) {
+                    MST[next.num] = distance;
+                    pq.add(new Node(next.num, distance));
                 }
-
-                cur = cur.next;
             }
         }
     }
