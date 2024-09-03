@@ -7,6 +7,10 @@
 	1-2. 접시의 수만큼 회전 초밥의 종류 입력
 	1-3. 변수 초기화
 2. 초밥의 가짓수의 최댓값 계산
+	2-1. 모든 조합을 확인할 때까지 반복
+		2-1-1. 먹은 접시의 수가 적으면  더 먹기
+		2-1-2. 먹어야 접시의 수만큼 먹었다면 먹은 스시의 종류 계산 후, 가장 마지막으로 먹었던 스시 취소하기
+		2-1-3. 먹은 스시의 종류가 최댓값이라면 탐색 종료
 3. 출력
  */
 
@@ -22,25 +26,39 @@ public class Main {
     static int[] plates, eatCount;
     static int maxEatSushi;
     
-    public static void main(String[] args) throws IOException {
-    	//1. 초기 세팅
-    	init();
-    	
-    	//2. 초밥의 가짓수의 최댓값 계산
+  //2. 초밥의 가짓수의 최댓값 계산
+    public static void findMaxEatSushi() {
     	eatCount[couponNo] = 1;
     	int eatSushi = 1;
+    	
+    	//2-1. 모든 조합을 확인할 때까지 반복
     	for (int leftIdx = 0, rightIdx = 0; leftIdx != plateSize || rightIdx != plateSize + (streakSize - 1);) {
+    		//2-1-1. 먹은 접시의 수가 적으면  더 먹기
     		if (rightIdx - leftIdx < streakSize) {
     			eatSushi += eatCount[plates[rightIdx % plateSize]]++ == 0 ? 1 : 0;
     			rightIdx++;
     		}
     		
+    		//2-1-2. 먹어야 접시의 수만큼 먹었다면 먹은 스시의 종류 계산 후, 가장 마지막으로 먹었던 스시 취소하기
     		else if (rightIdx - leftIdx == streakSize) {
     			maxEatSushi = Math.max(eatSushi, maxEatSushi);
+    			
     			eatSushi -= eatCount[plates[leftIdx]]-- == 1 ? 1 : 0;
     			leftIdx++;
     		}
+    		
+    		//2-1-3. 먹은 스시의 종류가 최댓값이라면 탐색 종료
+    		if (maxEatSushi == streakSize + 1)
+    			return;
     	}
+    }
+    
+    public static void main(String[] args) throws IOException {
+    	//1. 초기 세팅
+    	init();
+    	
+    	//2. 초밥의 가짓수의 최댓값 계산
+    	findMaxEatSushi();
     	
     	//3. 출력
         System.out.println(maxEatSushi);
