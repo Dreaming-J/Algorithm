@@ -7,7 +7,7 @@
 	1-1. 지도의 크기 입력
 	1-2. 지도의 크기만큼 지도의 정보 입력
 	1-3. 변수 초기화
-2. 도착지까지의 최적으 경로 탐색
+2. 도착지까지의 최적 경로 탐색
 3. 출력
  */
 
@@ -29,13 +29,13 @@ public class Solution {
     static PriorityQueue<Point> pq;
     static boolean[][] visited;
     
-    //2. 도착지까지의 최적으 경로 탐색
-    public static void findBestRoute() {
+    //2. 도착지까지의 최적 경로 탐색
+    public static void findBestRoute(int startRow, int startCol, int endRow, int endCol) {
     	visited = new boolean[mapSize][mapSize];
     	pq = new PriorityQueue<>();
     	
     	minDist[0][0] = 0;
-    	pq.add(new Point(0, 0, 0));
+    	pq.add(new Point(startRow, startCol, 0));
     	
     	while (!pq.isEmpty()) {
     		Point cur = pq.poll();
@@ -44,6 +44,10 @@ public class Solution {
     		if (visited[cur.row][cur.col])
     			continue;
     		visited[cur.row][cur.col] = true;
+    		
+            //도착지에 도착했다면 탐색 종료
+    		if (cur.row == endRow && cur.col == endCol)
+    			return;
     		
     		//다음으로 이동
     		for (int[] delta : deltas) {
@@ -72,8 +76,8 @@ public class Solution {
     		//1. 초기 세팅
     		initTestCase();
     		
-    		//2. 도착지까지의 최적으 경로 탐색
-    		findBestRoute();
+    		//2. 도착지까지의 최적 경로 탐색
+    		findBestRoute(0, 0, mapSize - 1, mapSize - 1);
     		
     		//3. 출력
     		output.append("#").append(tc).append(" ").append(minDist[mapSize - 1][mapSize - 1]).append("\n");
