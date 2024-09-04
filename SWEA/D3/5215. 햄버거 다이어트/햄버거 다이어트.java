@@ -34,12 +34,8 @@ public class Solution {
             
             //2. 최고 점수 탐색
             for (Ingredient ingredient : ingredients) {
-                //앞의 값을 참고하기 때문에 오염 방지를 위해 뒤에서부터 탐색
-	        	for (int kcal = limitKcal; kcal > 0; kcal--) {
-	        		if (kcal < ingredient.kcal)
-	        			bestScoreAboutKcal[kcal] = bestScoreAboutKcal[kcal - 1];
-	        		else
-	        			bestScoreAboutKcal[kcal] = Math.max(bestScoreAboutKcal[kcal - ingredient.kcal] + ingredient.score, bestScoreAboutKcal[kcal]);
+	        	for (int kcal = limitKcal; kcal >= ingredient.kcal; kcal--) {
+        			bestScoreAboutKcal[kcal] = Math.max(bestScoreAboutKcal[kcal - ingredient.kcal] + ingredient.score, bestScoreAboutKcal[kcal]);
 	        	}
             }
 
@@ -75,6 +71,4 @@ public class Solution {
         //1-3. 초기화
         bestScoreAboutKcal = new int[limitKcal + 1];
     }
-    
-    
 }
