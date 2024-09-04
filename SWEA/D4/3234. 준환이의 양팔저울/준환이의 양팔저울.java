@@ -28,18 +28,18 @@ import java.io.OutputStreamWriter;
 import java.util.StringTokenizer;
 
 class Solution {
-    static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    static BufferedWriter output = new BufferedWriter(new OutputStreamWriter(System.out));
-    static StringTokenizer st;
-    static int testCases;
-    static int weightCount;
-    static int[] weights;
-    static boolean[] visited;
     static int answer;
-
+    
     public static void main(String args[]) throws IOException {
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st;
+        int testCases;
+        int weightCount;
+        int[] weights;
+        boolean[] visited;
+        
         testCases = Integer.parseInt(input.readLine());
-
         for (int test_case = 1; test_case <= testCases; test_case++) {
             //입력 및 초기화
             weightCount = Integer.parseInt(input.readLine());
