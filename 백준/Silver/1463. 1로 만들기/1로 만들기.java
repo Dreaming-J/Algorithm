@@ -35,9 +35,6 @@ public class Main {
     		for (int operation = 0; operation < OPERATION_SIZE; operation++) {
     			int next = num + Math.max(num * operation, 1);
     			
-    			if (next > targetNumber)
-    				continue;
-    			
     			minCount[next] = Math.min(minCount[num] + 1, minCount[next]);
     		}
     	}
@@ -60,7 +57,7 @@ public class Main {
     	targetNumber = Integer.parseInt(input.readLine());
     	
     	//1-2. 변수 초기화
-    	minCount = new int[targetNumber + 1];
+    	minCount = new int[targetNumber * 3];
     	Arrays.fill(minCount, Integer.MAX_VALUE);
     }
 }
