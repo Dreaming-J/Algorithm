@@ -34,11 +34,9 @@ public class Solution {
             initTestCase();
             
             //2. 생성 가능한 수 찾기
-            for (int rotateIdx = 0; rotateIdx < passwordSize; rotateIdx++) {
-                for (int idx = passwordSize + rotateIdx; idx <= numberSize + rotateIdx ; idx += passwordSize) {
-    				passwords.add(Integer.parseInt(numbers.substring(idx - passwordSize, idx), HEX));
-    			}
-            }
+            for (int idx = 0; idx < numberSize; idx++) {
+				passwords.add(Integer.parseInt(numbers.substring(idx, idx + passwordSize), HEX));
+			}
             
             //3. 출력
             output.append("#").append(tc).append(" ").append(passwords.toArray()[rankNum - 1]).append("\n");
