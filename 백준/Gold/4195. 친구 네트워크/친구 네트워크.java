@@ -1,9 +1,5 @@
 /*
-= BOJ 17182. 우주 탐사선
-
-= 특이사항
-플로이드-워셜
-비트마스킹 dp
+= BOJ 4195. 친구 네트워크
 */
 
 import java.io.BufferedReader;
@@ -16,7 +12,6 @@ public class Main {
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
     static StringBuilder output = new StringBuilder();
-    static final int MAX_PEOPLE_SIZE = 200_001;
     static int friendshipSize;
     static HashMap<String, String> parents;
 
