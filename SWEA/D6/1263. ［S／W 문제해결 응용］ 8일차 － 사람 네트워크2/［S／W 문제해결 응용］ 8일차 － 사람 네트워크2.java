@@ -9,7 +9,7 @@
 2. 최단 경로 찾기
 	2-1. 경유한 경로가 기존 경로보다 작다면 갱신
 	2-2. 출발 노드의 간선의 합 갱신
-	2-3. 경로의 값이 양수라면 정답 갱신
+	2-3. 정답 갱신
 3. 출력
  */
  
@@ -47,9 +47,8 @@ public class Solution {
             			network[start][end] = newDist;
             			network[start][0] += newDist;
             			
-            			//2-3. 경로의 값이 양수라면 정답 갱신
-            			if (network[start][0] > 0)
-            				answer = Math.min(network[start][0], answer);
+            			//2-3. 정답 갱신
+        				answer = Math.min(network[start][0], answer);
             		}
             	}
         	}
@@ -77,6 +76,8 @@ public class Solution {
     public static void init() throws IOException {
     	st = new StringTokenizer(input.readLine().trim());
     	
+    	answer = INF;
+    	
         //1-1. 사람의 수 입력
     	personSize = Integer.parseInt(st.nextToken());
     	
@@ -84,21 +85,15 @@ public class Solution {
     	network = new int[personSize + 1][personSize + 1];
     	for (int row = 1; row <= personSize; row++) {
     		for (int col = 1; col <= personSize; col++) {
-    			network[row][col] = Integer.parseInt(st.nextToken());
+    			int isConnected = Integer.parseInt(st.nextToken());
     			
-    			if (network[row][col] == CONNECTED)
-    				network[row][0]++;
-    			else if (row != col) {
-    				network[row][col] = INF;
-    				network[row][0] += INF;
-    			}
+    			if (isConnected == CONNECTED)
+    				network[row][0] += network[row][col] = isConnected;
+    			else if (row != col)
+    				network[row][0] += network[row][col] = INF;
     		}
-    	}
-    	
-    	//1-3. 정답 초기화
-    	answer = INF;
-    	for (int row = 1; row <= personSize; row++) {
-    		answer = Math.min(network[row][0], answer);
+			
+			answer = Math.min(network[row][0], answer);
     	}
     }
 }
