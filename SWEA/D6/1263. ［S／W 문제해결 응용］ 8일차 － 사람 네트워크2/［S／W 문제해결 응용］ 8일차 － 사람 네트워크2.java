@@ -30,29 +30,29 @@ public class Solution {
     
     //2. 최단 경로 찾기
     public static void findMinDist() {
-    	for (int layOver = 1; layOver <= personSize; layOver++) {
-        	for (int start = 1; start <= personSize; start++) {
+    	for (int layOver = 0; layOver < personSize; layOver++) {
+        	for (int start = 0; start < personSize; start++) {
         		if (start == layOver)
         			continue;
 
-            	for (int end = 1; end <= personSize; end++) {
+            	for (int end = 0; end < personSize; end++) {
             		if (end == layOver || end == start)
             			continue;
             		
             		//2-1. 경유한 경로가 기존 경로보다 작다면 갱신
-            		int newDist = network[start][layOver] + network[layOver][end];
-            		if (newDist < network[start][end]) {
-            			//2-2. 출발 노드의 간선의 합 갱신
-            			network[start][0] -= network[start][end];
-            			network[start][end] = newDist;
-            			network[start][0] += newDist;
-            			
-            			//2-3. 정답 갱신
-        				answer = Math.min(network[start][0], answer);
-            		}
+            		network[start][end] = Math.min(network[start][layOver] + network[layOver][end], network[start][end]);
             	}
         	}
     	}
+    }
+    
+    public static int findCC(int row) {
+    	int cc = 0;
+    	
+    	for (int col = 0; col < personSize; col++)
+    		cc += network[row][col];
+    		
+    	return cc;
     }
  
     public static void main(String[] args) throws IOException {
@@ -65,6 +65,10 @@ public class Solution {
         	
         	//2. 최단 경로 찾기
         	findMinDist();
+        	
+        	//3. 최소 값 찾기
+        	for (int row = 0; row < personSize; row++)
+        		answer = Math.min(findCC(row), answer);
  
         	//3. 출력
             output.append("#").append(tc).append(" ").append(answer).append("\n");
@@ -82,18 +86,16 @@ public class Solution {
     	personSize = Integer.parseInt(st.nextToken());
     	
     	//1-2. 사람 네트워크 입력
-    	network = new int[personSize + 1][personSize + 1];
-    	for (int row = 1; row <= personSize; row++) {
-    		for (int col = 1; col <= personSize; col++) {
+    	network = new int[personSize][personSize];
+    	for (int row = 0; row < personSize; row++) {
+    		for (int col = 0; col < personSize; col++) {
     			int isConnected = Integer.parseInt(st.nextToken());
     			
-    			if (isConnected == CONNECTED)
-    				network[row][0] += network[row][col] = isConnected;
-    			else if (row != col)
-    				network[row][0] += network[row][col] = INF;
+    			if (row == col)
+    				continue;
+    			
+    			network[row][col] = isConnected == CONNECTED ? isConnected : INF;
     		}
-			
-			answer = Math.min(network[row][0], answer);
     	}
     }
 }
