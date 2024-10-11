@@ -19,13 +19,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Objects;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -135,7 +129,7 @@ public class Main {
     }
 
     //4. 모든 섬을 연결하는 다리 건설
-    public static void chooseBridge(int selectIdx, int visit, int bridgeCost) {
+    public static void chooseBridge() {
         int cnt = 0;
 
         while (!bridges.isEmpty()) {
@@ -164,7 +158,7 @@ public class Main {
         findBridge(0);
 
         //4. 모든 섬을 연결하는 다리 건설
-        chooseBridge(0, 0, 0);
+        chooseBridge();
 
         System.out.println(minBridgeCost);
     }
