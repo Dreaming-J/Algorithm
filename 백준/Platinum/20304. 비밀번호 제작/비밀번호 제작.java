@@ -28,12 +28,11 @@ public class Main {
     }
 
     private static int findMaxSafeDistance() {
-
         int safeDistance = 0;
+        
         while (!candidatePasswords.isEmpty()) {
             int size = candidatePasswords.size();
 
-            safeDistance++;
             while (size-- > 0) {
                 int cur = candidatePasswords.poll();
 
@@ -50,6 +49,8 @@ public class Main {
                     candidatePasswords.add(next);
                 }
             }
+            
+            safeDistance++;
         }
 
         return safeDistance - 1;
