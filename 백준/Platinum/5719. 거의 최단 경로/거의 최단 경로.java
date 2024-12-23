@@ -19,7 +19,7 @@ public class Main {
     static int start, end;
     static List<Node>[] graph;
     static boolean[][] blockEdges;
-    static List<Integer>[] trace;
+    static Deque<Integer>[] trace;
     static int[] distances;
 
     static class Node implements Comparable<Node> {
@@ -39,7 +39,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         while (init()) {
             findMinDistance();
-            blockMinPath();
+            blockMinPath(end);
             findMinDistance();
 
             output.append(distances[end] != MAX_VALUE ? distances[end] : NOT_VISITED)
@@ -69,7 +69,7 @@ public class Main {
                     trace[next.num].add(cur.num);
 
                 if (distance < distances[next.num]) {
-                    trace[next.num] = new ArrayList<>();
+                    trace[next.num] = new ArrayDeque<>();
                     trace[next.num].add(cur.num);
 
                     distances[next.num] = distance;
@@ -79,28 +79,13 @@ public class Main {
         }
     }
 
-    private static void blockMinPath() {
-        Deque<Integer> queue = new ArrayDeque<>();
-        boolean[] visited = new boolean[nodeSize];
+    private static void blockMinPath(int to) {
+        while (trace[to] != null && !trace[to].isEmpty()) {
+            int from = trace[to].poll();
 
-        queue.add(end);
-        visited[end] = true;
+            blockEdges[from][to] = true;
 
-        while (!queue.isEmpty()) {
-            int to = queue.poll();
-
-            if (trace[to] == null)
-                continue;
-
-            for (int from : trace[to]) {
-                blockEdges[from][to] = true;
-
-                if (visited[from])
-                    continue;
-
-                visited[from] = true;
-                queue.add(from);
-            }
+            blockMinPath(from);
         }
     }
 
@@ -131,7 +116,7 @@ public class Main {
         }
 
         blockEdges = new boolean[nodeSize][nodeSize];
-        trace = new ArrayList[nodeSize];
+        trace = new ArrayDeque[nodeSize];
         distances = new int[nodeSize];
 
         return true;
