@@ -9,20 +9,15 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-    static final int MAX_TIME = 1_000_000;
-
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     static StringBuilder output = new StringBuilder();
     static StringTokenizer st;
     static int citySize, roadSize, rank;
     static List<City>[] cities;
-    static Time[] elapsedTime;
+    static PriorityQueue<Integer>[] elapsedTime;
 
     static class City {
         int num, time;
@@ -30,15 +25,6 @@ public class Main {
         public City(int num, int time) {
             this.num = num;
             this.time = time;
-        }
-    }
-
-    static class Time {
-        int time, count;
-
-        public Time(int time, int count) {
-            this.time = time;
-            this.count = count;
         }
     }
 
@@ -51,28 +37,37 @@ public class Main {
     }
 
     private static void findPath() {
-        PriorityQueue<City> pq = new PriorityQueue<>((o1, o2) -> o1.time - o2.time);
+        PriorityQueue<City> pathes = new PriorityQueue<>((o1, o2) -> o1.time - o2.time);
 
-        pq.add(new City(1, 0));
+        pathes.add(new City(1, 0));
 
-        while (!pq.isEmpty()) {
-            City cur = pq.poll();
+        while (!pathes.isEmpty()) {
+            City cur = pathes.poll();
 
-            if (elapsedTime[cur.num].count == rank)
+            if (elapsedTime[cur.num].peek() < cur.time)
                 continue;
 
-            elapsedTime[cur.num].time = cur.time;
-            elapsedTime[cur.num].count++;
-
             for (City next : cities[cur.num]) {
-                pq.add(new City(next.num, cur.time + next.time));
+                int time = cur.time + next.time;
+
+                //경로의 수가 rank라면 기존에 들어있는 가장 오래 걸리는 시간과 비교 후 삽입 여부 판단
+                //(elapsedTime은 내림차순 정렬을 했으므로 첫번째 값이 가장 오래 걸리는 시간이다.)
+                if (elapsedTime[next.num].size() == rank) {
+                    if (time >= elapsedTime[next.num].peek())
+                        continue;
+
+                    elapsedTime[next.num].poll();
+                }
+
+                elapsedTime[next.num].add(time);
+                pathes.add(new City(next.num, time));
             }
         }
     }
 
     private static void printAnswer() {
         for (int idx = 1; idx <= citySize; idx++)
-            output.append(elapsedTime[idx].count == rank ? elapsedTime[idx].time : -1)
+            output.append(elapsedTime[idx].size() == rank ? elapsedTime[idx].peek().intValue() : -1)
                     .append("\n");
 
         System.out.println(output);
@@ -97,8 +92,9 @@ public class Main {
             cities[from].add(new City(to, time));
         }
 
-        elapsedTime = new Time[citySize + 1];
+        elapsedTime = new PriorityQueue[citySize + 1];
         for (int idx = 1; idx <= citySize; idx++)
-            elapsedTime[idx] = new Time(MAX_TIME, 0);
+            elapsedTime[idx] = new PriorityQueue<>(Collections.reverseOrder());
+        elapsedTime[1].add(0);
     }
 }
