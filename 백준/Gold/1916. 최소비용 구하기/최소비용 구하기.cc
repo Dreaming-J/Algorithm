@@ -30,7 +30,7 @@ void init() {
 }
 
 void findMinCost() {
-    priority_queue<pair<int, int>> minHeap;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, less<pair<int, int>>> minHeap;
 
     minHeap.push({0, src});
 
