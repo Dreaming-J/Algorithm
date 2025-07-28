@@ -2,73 +2,82 @@
 #include <string>
 using namespace std;
 
-const int DELTAS[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-const int MAX_SIZE = 101, MAX_INT = 1e9;
+const int DELTAS[4][2] = {{-1 ,0}, {1, 0}, {0, -1}, {0, 1}};
+const int MAX_SIZE = 101;
 
 int rowSize, colSize, hintSize;
 char map[MAX_SIZE][MAX_SIZE];
 string hint;
 bool visited[MAX_SIZE][MAX_SIZE];
 int maxK = -1;
-pair<int, int> point;
+pair<int, int> maxPoint;
 
-void init() {
+void init()
+{
     cin >> rowSize >> colSize >> hintSize;
+    
     cin >> hint;
-
-    for (int row = 1; row <= rowSize; row++) {
-        for (int col = 1; col <= colSize; col++) {
+    
+    for (int row = 1; row <= rowSize; row++)
+    {
+        for (int col = 1; col <= colSize; col++)
+        {
             cin >> map[row][col];
         }
     }
 }
 
-bool isOut(int row, int col) {
+bool is_out(int row, int col)
+{
     return row <= 0 || row > rowSize || col <= 0 || col > colSize;
 }
 
-void dfs(pair<int, int> cur, int hintIdx, int k) {
-    visited[cur.first][cur.second] = true;
-
-    if (hintIdx == hintSize) {
-        if (k > maxK) {
-            maxK = k;
-            point = cur;
-        }
-
-        hintIdx = 0;
+void dfs(int row, int col, int nextHintIdx, int k)
+{
+    visited[row][col] = true;
+    
+    if (nextHintIdx % hintSize == 0 && k > maxK)
+    {
+        maxK = k;
+        maxPoint = {row, col};
     }
-
-    for (auto& delta : DELTAS) {
-        int nextRow = cur.first + delta[0];
-        int nextCol = cur.second + delta[1];
-
-        if (isOut(nextRow, nextCol) || map[nextRow][nextCol] != hint.at(hintIdx)) {
+    
+    for (auto& delta : DELTAS)
+    {
+        int nextRow = row + delta[0];
+        int nextCol = col + delta[1];
+        
+        // 범위를 벗어나면
+        if (is_out(nextRow, nextCol))
             continue;
+            
+        // 힌트의 다음 칸이 아니면
+        if (map[nextRow][nextCol] != hint.at(nextHintIdx % hintSize))
+            continue;
+        
+        // 방문했으면
+        if (visited[nextRow][nextCol] && nextHintIdx % hintSize == 0)
+        {
+            cout << -1;
+            exit(0);
         }
-
-        if (visited[nextRow][nextCol]) {
-            maxK = MAX_INT;
-            return;
-        }
-
-        dfs({nextRow, nextCol}, hintIdx + 1, hintIdx == 0 ? k + 1 : k);
-
-        visited[nextRow][nextCol] = false;
+        
+        dfs(nextRow, nextCol, nextHintIdx + 1, nextHintIdx % hintSize == 0 ? k + 1 : k);
     }
+    
+    visited[row][col] = false;
 }
 
-int main() {
+int main()
+{
     init();
-
-    dfs({1, 1}, 1, 1);
-
-    if (maxK == MAX_INT) {
-        cout << -1;
+    
+    dfs(1, 1, 1, 1);
+    
+    cout << maxK << '\n';
+    if (maxK != -1) {
+        cout << maxPoint.first << " " << maxPoint.second;
     }
-    else {
-        cout << maxK << '\n' << point.first << " " << point.second;
-    }
-
+    
     return 0;
 }
