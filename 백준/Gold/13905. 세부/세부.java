@@ -71,33 +71,7 @@ public class Main {
 
         System.out.println(findMaxCount());
     }
-
-    private static boolean union(int element1, int element2) {
-        int parent1 = find(element1);
-        int parent2 = find(element2);
-
-        if (parent1 == parent2)
-            return false;
-
-        if (rank[parent1] > rank[parent2]) {
-            parent[parent2] = parent1;
-            return true;
-        }
-
-        if (rank[parent1] == rank[parent2])
-            rank[parent2]++;
-
-        parent[parent1] = parent2;
-        return true;
-    }
-
-    private static int find(int element) {
-        if (parent[element] == 0)
-            return element;
-
-        return parent[element] = find(parent[element]);
-    }
-
+    
     private static void init() throws IOException {
         st = new StringTokenizer(input.readLine());
         houseSize = Integer.parseInt(st.nextToken());
