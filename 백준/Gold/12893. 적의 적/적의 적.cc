@@ -36,7 +36,7 @@ bool union_set(int element1, int element2)
 	return true;
 }
 
-bool prove()
+int prove()
 {
 	for (int idx = 1; idx <= network_size; idx++)
 	{
@@ -45,7 +45,7 @@ bool prove()
 		cin >> person1 >> person2;
 
 		if (find(person1) == find(person2))
-			return false;
+			return IMPOSSIBLE;
 
 		if (enemies[person1] == NONE)
 			enemies[person1] = person2;
@@ -58,14 +58,14 @@ bool prove()
 			union_set(enemies[person2], person1);
 	}
 
-	return true;
+	return POSSIBLE;
 }
 
 int main()
 {
 	init();
 
-	cout << prove() ? POSSIBLE : IMPOSSIBLE;
+	cout << prove();
 
 	return 0;
 }
